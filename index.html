@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prononciation en français</title>
+<style>
+.prf-page, .prf-page * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.prf-page {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px;
+  border-radius: 24px;
+}
+.prf-app {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  padding: 22px;
+  max-width: 480px;
+  margin: 0 auto;
+  color: #1e293b;
+}
+.prf-title { text-align: center; margin: 0 0 4px; font-size: 1.6rem; line-height: 1.2; }
+.prf-subtitle { text-align: center; color: #64748b; margin: 0 0 18px; font-size: 18px; }
+.prf-tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 18px; }
+.prf-tab {
+  flex: 1; padding: 12px 6px; border: none; border-radius: 10px; background: transparent;
+  cursor: pointer; font-weight: 700; color: #64748b; font-size: 18px; font-family: inherit;
+}
+.prf-tab.prf-active { background: #fff; color: #764ba2; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.prf-input {
+  width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 18px;
+  text-align: center; margin-bottom: 12px; font-family: inherit; appearance: none; -webkit-appearance: none;
+}
+.prf-input:focus { outline: none; border-color: #667eea; background: #fdfeff; }
+.prf-progress { text-align: center; color: #64748b; font-weight: 700; margin-bottom: 8px; font-size: 18px; }
+.prf-card {
+  background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 18px; padding: 26px 14px;
+  margin-bottom: 14px; text-align: center; min-height: 130px; display: flex;
+  align-items: center; justify-content: center; transition: border-color .3s, background .3s;
+}
+.prf-card.prf-ok { border-color: #10b981; background: #ecfdf5; }
+.prf-word { font-size: 2.1rem; font-weight: 800; word-break: break-word; line-height: 1.25; }
+.prf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.prf-btn {
+  padding: 15px 10px; min-height: 56px; border: none; border-radius: 14px; font-size: 18px;
+  font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center;
+  justify-content: center; gap: 8px; transition: transform .15s;
+}
+.prf-btn:active { transform: scale(.96); }
+.prf-btn-light { background: #f1f5f9; color: #475569; }
+.prf-btn-main { grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 4px 12px rgba(102,126,234,.35); }
+.prf-btn-main.prf-recording { background: #ef4135; animation: prf-pulse 1.5s infinite; }
+.prf-btn-dark { grid-column: span 2; background: #1e293b; color: #fff; }
+.prf-span2 { grid-column: span 2; }
+.prf-feedback {
+  background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 16px; padding: 14px;
+  min-height: 100px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; gap: 8px;
+}
+.prf-msg { color: #475569; line-height: 1.4; font-size: 18px; }
+.prf-compare { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.prf-w { padding: 4px 10px; border-radius: 10px; font-weight: 700; font-size: 18px; }
+.prf-w-ok { background: #d1fae5; color: #065f46; }
+.prf-w-ko { background: #fee2e2; color: #991b1b; text-decoration: underline wavy #ef4444; }
+.prf-badge { padding: 6px 16px; border-radius: 20px; font-weight: 800; font-size: 18px; }
+.prf-correct { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+.prf-almost { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+.prf-incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+.prf-details { margin-top: 14px; background: #fff7ed; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 12px 14px; font-size: 18px; color: #7c2d12; }
+.prf-details summary { cursor: pointer; font-weight: 700; }
+.prf-details p { margin: 10px 0; line-height: 1.4; }
+.prf-details .prf-input { margin-bottom: 0; }
+.prf-tips { background: #f0f7ff; border-left: 4px solid #3b82f6; border-radius: 14px; padding: 14px; margin-top: 14px; font-size: 18px; color: #1e40af; }
+.prf-tips ul { margin: 6px 0 0 20px; padding: 0; }
+.prf-recap-score { text-align: center; font-size: 1.5rem; font-weight: 800; margin: 6px 0 14px; }
+.prf-recap-list { list-style: none; margin: 0 0 14px; padding: 0; }
+.prf-recap-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; font-weight: 700; font-size: 18px; }
+.prf-recap-item.prf-good { background: #d1fae5; color: #065f46; }
+.prf-recap-item.prf-bad { background: #fee2e2; color: #991b1b; }
+.prf-hidden { display: none !important; }
+@keyframes prf-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(239,65,53,.6); }
+  70% { box-shadow: 0 0 0 12px rgba(239,65,53,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,65,53,0); }
+}
+</style>
+</head>
+<body>
+
+<div class="prf-page">
+  <div class="prf-app">
+    <h1 class="prf-title">🇫🇷 Prononciation en français</h1>
+    <p class="prf-subtitle">Écoutez, parlez et apprenez 🎧</p>
+
+    <div class="prf-tabs">
+      <button type="button" id="prf-tab-free" class="prf-tab prf-active">⌨️ Mode libre</button>
+      <button type="button" id="prf-tab-list" class="prf-tab">📚 Mots clés</button>
+    </div>
+
+    <div id="prf-practice">
+      <div id="prf-free-area">
+        <input type="text" id="prf-custom" class="prf-input" placeholder="Tapez un mot ou une phrase…" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div id="prf-progress" class="prf-progress prf-hidden"></div>
+
+      <div class="prf-card" id="prf-card">
+        <div class="prf-word" id="prf-word">Bonjour</div>
+      </div>
+
+      <div class="prf-grid" id="prf-grid">
+        <button type="button" id="prf-listen" class="prf-btn prf-btn-light">🔊 Écouter</button>
+        <button type="button" id="prf-clear" class="prf-btn prf-btn-light">🧹 Effacer</button>
+        <button type="button" id="prf-record" class="prf-btn prf-btn-main">🎤 Appuyer pour parler</button>
+        <button type="button" id="prf-next" class="prf-btn prf-btn-dark prf-hidden">Mot suivant ➡️</button>
+      </div>
+
+      <div class="prf-feedback" aria-live="polite">
+        <div id="prf-msg" class="prf-msg">Prêt pour l'écoute… 🎧</div>
+        <div id="prf-compare" class="prf-compare"></div>
+        <div id="prf-badge" class="prf-badge prf-hidden"></div>
+      </div>
+
+      <details id="prf-fallback" class="prf-details">
+        <summary>🎹 Le micro ne marche pas ? Dictée du clavier</summary>
+        <p>Appuyez sur le petit micro de <strong>votre clavier</strong> (téléphone ou ordinateur) et dites le mot en français.</p>
+        <input type="text" id="prf-dictee" class="prf-input" placeholder="🎤 Dictez ici…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </details>
+
+      <div class="prf-tips">
+        <strong>💡 Conseils :</strong>
+        <ul>
+          <li>Utilisez des écouteurs pour de meilleurs résultats.</li>
+          <li>Appuyez sur le bouton, puis parlez clairement.</li>
+          <li>Écoutez d'abord le modèle, puis répétez ! 🗣️</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="prf-recap" class="prf-hidden"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ====== Liste de mots (modifiable) ======
+  var WORDS = [
+    'Écureuil', 'Grenouille', 'Bouilloire', 'Heureux', 'Serrurerie',
+    'Reims', 'Accueil', 'Monsieur', 'Oiseau', 'Chien'
+  ];
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var inFrame = false;
+  try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+
+  var mode = 'free';
+  var order = [];
+  var pos = 0;
+  var results = {};
+  var currentTarget = 'Bonjour';
+  var rec = null;
+  var isRecording = false;
+  var gotResult = false;
+  var hadError = false;
+  var autoTimer = null;
+  var nextTimer = null;
+  var dicteeTimer = null;
+  var frVoice = null;
+
+  function $(id) { return document.getElementById(id); }
+  var elWord = $('prf-word'), elCard = $('prf-card'), elMsg = $('prf-msg'),
+      elCompare = $('prf-compare'), elBadge = $('prf-badge'), elRecord = $('prf-record'),
+      elNext = $('prf-next'), elClear = $('prf-clear'), elListen = $('prf-listen'),
+      elFree = $('prf-free-area'), elCustom = $('prf-custom'), elProgress = $('prf-progress'),
+      elFallback = $('prf-fallback'), elDictee = $('prf-dictee'), elPractice = $('prf-practice'),
+      elRecap = $('prf-recap');
+
+  // ====== Utilitaires ======
+  function make(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function norm(s) {
+    return String(s).toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/œ/g, 'oe').replace(/æ/g, 'ae')
+      .replace(/[’'\-]/g, ' ')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  function clearTimers() {
+    clearTimeout(autoTimer);
+    clearTimeout(nextTimer);
+  }
+
+  // ====== Synthèse vocale (modèle) ======
+  function pickVoice() {
+    if (!('speechSynthesis' in window)) { return; }
+    var voices = window.speechSynthesis.getVoices();
+    var found = null;
+    for (var i = 0; i < voices.length; i++) {
+      var l = (voices[i].lang || '').replace('_', '-').toLowerCase();
+      if (l === 'fr-fr') { found = voices[i]; break; }
+      if (!found && l.indexOf('fr') === 0) { found = voices[i]; }
+    }
+    frVoice = found;
+  }
+
+  function speak() {
+    if (!('speechSynthesis' in window)) {
+      setMessage('Votre navigateur ne peut pas lire le mot à voix haute.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(currentTarget);
+    u.lang = 'fr-FR';
+    u.rate = 0.85;
+    if (frVoice) { u.voice = frVoice; }
+    window.speechSynthesis.speak(u);
+  }
+
+  // ====== Affichage du retour ======
+  function setMessage(text) { elMsg.textContent = text; }
+
+  function resetFeedback() {
+    setMessage("Prêt pour l'écoute… 🎧");
+    elCompare.textContent = '';
+    elBadge.className = 'prf-badge prf-hidden';
+    elCard.classList.remove('prf-ok');
+  }
+
+  function renderResult(res) {
+    elMsg.textContent = '';
+    elMsg.appendChild(document.createTextNode("J'ai entendu : "));
+    elMsg.appendChild(make('strong', '', '« ' + res.heard + ' »'));
+
+    elCompare.textContent = '';
+    for (var i = 0; i < res.words.length; i++) {
+      elCompare.appendChild(make('span', 'prf-w ' + (res.flags[i] ? 'prf-w-ok' : 'prf-w-ko'), res.words[i]));
+    }
+
+    elBadge.classList.remove('prf-hidden');
+    if (res.ok) {
+      elBadge.textContent = '✅ Excellent !';
+      elBadge.className = 'prf-badge prf-correct';
+      elCard.classList.add('prf-ok');
+    } else if (res.count > 0) {
+      elBadge.textContent = '🔁 Presque ! Écoutez et réessayez';
+      elBadge.className = 'prf-badge prf-almost';
+      elCard.classList.remove('prf-ok');
+    } else {
+      elBadge.textContent = '❌ Essayez encore';
+      elBadge.className = 'prf-badge prf-incorrect';
+      elCard.classList.remove('prf-ok');
+    }
+  }
+
+  // ====== Évaluation ======
+  function evaluate(heardList) {
+    var words = currentTarget.split(/\s+/).filter(function (w) { return w.length > 0; });
+    var best = { count: -1, flags: [], heard: heardList[0] || '' };
+    for (var h = 0; h < heardList.length; h++) {
+      var tokens = norm(heardList[h]).split(' ');
+      var flags = [];
+      var count = 0;
+      for (var w = 0; w < words.length; w++) {
+        var parts = norm(words[w]).split(' ').filter(function (p) { return p.length > 0; });
+        var ok = true;
+        for (var p = 0; p < parts.length; p++) {
+          if (tokens.indexOf(parts[p]) === -1) { ok = false; }
+        }
+        flags.push(ok);
+        if (ok) { count++; }
+      }
+      if (count > best.count) { best = { count: count, flags: flags, heard: heardList[h] }; }
+    }
+    best.words = words;
+    best.ok = words.length > 0 && best.count === words.length;
+    return best;
+  }
+
+  function onHeard(list) {
+    if (!list.length) { return; }
+    var res = evaluate(list);
+    renderResult(res);
+    if (mode !== 'list') { return; }
+
+    var idx = order[pos];
+    if (results[idx] === undefined) { results[idx] = res.ok; }
+
+    clearTimers();
+    if (res.ok) {
+      elNext.classList.add('prf-hidden');
+      autoTimer = setTimeout(advance, 1500);
+    } else {
+      nextTimer = setTimeout(function () { elNext.classList.remove('prf-hidden'); }, 2200);
+    }
+  }
+
+  // ====== Reconnaissance vocale ======
+  function openFallback() { elFallback.open = true; }
+
+  function onRecognitionError(code) {
+    hadError = true;
+    if (code === 'not-allowed' || code === 'service-not-allowed') {
+      if (inFrame) {
+        setMessage("🔒 Le micro est bloqué : cette page est intégrée dans un cadre (Google Sites, Apps Script…) qui n'autorise pas le micro. Ouvrez la page dans un onglet indépendant, ou utilisez la dictée du clavier ci-dessous.");
+      } else {
+        setMessage("🔒 Accès au micro refusé. Autorisez le micro dans le navigateur (icône du cadenas à côté de l'adresse), puis réessayez. Vous pouvez aussi utiliser la dictée du clavier ci-dessous.");
+      }
+      openFallback();
+    } else if (code === 'no-speech') {
+      setMessage("Je n'ai rien entendu 🤔 Appuyez et parlez tout de suite après.");
+    } else if (code === 'audio-capture') {
+      setMessage("Aucun micro détecté 🎙️ Branchez un micro ou utilisez la dictée du clavier ci-dessous.");
+      openFallback();
+    } else if (code === 'network') {
+      setMessage("Problème de connexion 📶 La reconnaissance vocale a besoin d'Internet.");
+    } else if (code === 'aborted') {
+      // arrêt volontaire : rien à afficher
+    } else {
+      setMessage('Erreur de reconnaissance (' + code + '). Réessayez.');
+    }
+  }
+
+  function startListening() {
+    clearTimers();
+    if (!SR) {
+      setMessage("Ce navigateur ne gère pas la reconnaissance vocale 😕 Utilisez Chrome, Edge ou Safari, ou la dictée du clavier ci-dessous.");
+      openFallback();
+      return;
+    }
+    if (isRecording) {
+      try { rec.stop(); } catch (e) { /* rien */ }
+      return;
+    }
+    if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+
+    rec = new SR();
+    rec.lang = 'fr-FR';
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.maxAlternatives = 5;
+    gotResult = false;
+    hadError = false;
+
+    rec.onstart = function () {
+      isRecording = true;
+      elRecord.classList.add('prf-recording');
+      elRecord.textContent = "🎙️ J'écoute…";
+      elBadge.className = 'prf-badge prf-hidden';
+      elCompare.textContent = '';
+      setMessage('Parlez maintenant…');
+    };
+
+    rec.onresult = function (event) {
+      gotResult = true;
+      var list = [];
+      var r = event.results[0];
+      for (var i = 0; i < r.length; i++) { list.push(r[i].transcript); }
+      onHeard(list);
+    };
+
+    rec.onerror = function (event) { onRecognitionError(event.error); };
+
+    rec.onend = function () {
+      isRecording = false;
+      elRecord.classList.remove('prf-recording');
+      elRecord.textContent = '🎤 Appuyer pour parler';
+      if (!gotResult && !hadError) {
+        setMessage("Je n'ai rien entendu 🤔 Réessayez.");
+      }
+    };
+
+    try {
+      rec.start();
+    } catch (e) {
+      setMessage('Impossible de démarrer le micro. Réessayez.');
+    }
+  }
+
+  // ====== Dictée du clavier (solution de secours) ======
+  function checkDictee() {
+    var v = elDictee.value.trim();
+    if (v) { onHeard([v]); }
+  }
+
+  // ====== Modes ======
+  function setMode(m) {
+    clearTimers();
+    mode = m;
+    elRecap.classList.add('prf-hidden');
+    elPractice.classList.remove('prf-hidden');
+    $('prf-tab-free').classList.toggle('prf-active', m === 'free');
+    $('prf-tab-list').classList.toggle('prf-active', m === 'list');
+    elNext.classList.add('prf-hidden');
+    elDictee.value = '';
+
+    if (m === 'free') {
+      elFree.classList.remove('prf-hidden');
+      elProgress.classList.add('prf-hidden');
+      elClear.classList.remove('prf-hidden');
+      elListen.classList.remove('prf-span2');
+      handleCustom();
+    } else {
+      elFree.classList.add('prf-hidden');
+      elClear.classList.add('prf-hidden');
+      elListen.classList.add('prf-span2');
+      startList();
+    }
+  }
+
+  function handleCustom() {
+    currentTarget = elCustom.value.trim() || 'Bonjour';
+    elWord.textContent = currentTarget;
+    elDictee.value = '';
+    resetFeedback();
+  }
+
+  function clearInput() {
+    elCustom.value = '';
+    handleCustom();
+    elCustom.focus();
+  }
+
+  function startList() {
+    order = [];
+    for (var i = 0; i < WORDS.length; i++) { order.push(i); }
+    results = {};
+    pos = 0;
+    loadWord();
+  }
+
+  function loadWord() {
+    clearTimers();
+    currentTarget = WORDS[order[pos]];
+    elWord.textContent = currentTarget;
+    elProgress.classList.remove('prf-hidden');
+    elProgress.textContent = 'Mot ' + (pos + 1) + ' / ' + order.length;
+    elNext.classList.add('prf-hidden');
+    elDictee.value = '';
+    resetFeedback();
+  }
+
+  function advance() {
+    clearTimers();
+    pos++;
+    if (pos >= order.length) { showRecap(); } else { loadWord(); }
+  }
+
+  // ====== Récapitulatif ======
+  function showRecap() {
+    elPractice.classList.add('prf-hidden');
+    elRecap.classList.remove('prf-hidden');
+    elRecap.textContent = '';
+
+    var good = 0, wrong = [];
+    for (var i = 0; i < order.length; i++) {
+      if (results[order[i]]) { good++; } else { wrong.push(order[i]); }
+    }
+
+    elRecap.appendChild(make('h2', 'prf-title', '📋 Récapitulatif'));
+    elRecap.appendChild(make('div', 'prf-recap-score',
+      good + ' / ' + order.length + (wrong.length === 0 ? ' 🎉' : ' 💪')));
+
+    var ul = make('ul', 'prf-recap-list');
+    for (var j = 0; j < order.length; j++) {
+      var ok = !!results[order[j]];
+      var li = make('li', 'prf-recap-item ' + (ok ? 'prf-good' : 'prf-bad'));
+      li.appendChild(make('span', '', WORDS[order[j]]));
+      li.appendChild(make('span', '', ok ? '✅ du premier coup' : '❌ à revoir'));
+      ul.appendChild(li);
+    }
+    elRecap.appendChild(ul);
+
+    var grid = make('div', 'prf-grid');
+    if (wrong.length > 0) {
+      var retry = make('button', 'prf-btn prf-btn-main', '🔁 Revoir les mots difficiles (' + wrong.length + ')');
+      retry.type = 'button';
+      retry.addEventListener('click', function () {
+        order = wrong.slice();
+        results = {};
+        pos = 0;
+        elRecap.classList.add('prf-hidden');
+        elPractice.classList.remove('prf-hidden');
+        loadWord();
+      });
+      grid.appendChild(retry);
+    }
+    var again = make('button', 'prf-btn prf-btn-dark', '↺ Recommencer');
+    again.type = 'button';
+    again.addEventListener('click', function () { setMode('list'); });
+    grid.appendChild(again);
+    elRecap.appendChild(grid);
+  }
+
+  // ====== Initialisation ======
+  function init() {
+    pickVoice();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = pickVoice;
+    }
+
+    $('prf-tab-free').addEventListener('click', function () { setMode('free'); });
+    $('prf-tab-list').addEventListener('click', function () { setMode('list'); });
+    elListen.addEventListener('click', speak);
+    elClear.addEventListener('click', clearInput);
+    elRecord.addEventListener('click', startListening);
+    elNext.addEventListener('click', advance);
+    elCustom.addEventListener('input', handleCustom);
+    elDictee.addEventListener('input', function () {
+      clearTimeout(dicteeTimer);
+      dicteeTimer = setTimeout(checkDictee, 1200);
+    });
+    elDictee.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { clearTimeout(dicteeTimer); checkDictee(); }
+    });
+
+    if (!SR) {
+      setMessage("Ce navigateur ne gère pas la reconnaissance vocale 😕 Utilisez la dictée du clavier ci-dessous.");
+      elFallback.open = true;
+    }
+    setMode('free');
+    if (!SR) { setMessage("Ce navigateur ne gère pas la reconnaissance vocale 😕 Utilisez la dictée du clavier ci-dessous."); }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
